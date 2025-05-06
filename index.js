@@ -1,4 +1,4 @@
-import 'dotenv/config';
+// import 'dotenv/config';
 import { RestClient } from 'okx-api';
 import TelegramBot from 'node-telegram-bot-api';
 
