@@ -1,22 +1,17 @@
-import { getPositionData, getPriceData } from './api/okx/okx.js';
-import { sendMsgToChat } from './api/tg/tg.js';
-import { parsePositionData, parsePriceData } from './features/okx/parseApiData.js';
-import { BTC_USDT_FUTURES_ID, CHAT_IDS, PEPE_USDT_FUTURES_ID } from './lib/constants.js';
+import { getPositionData, getPriceData } from './api/okx';
+import { sendMsgToChat } from './api/tg';
+import { parsePositionData, parsePriceData } from './services/okx/parseApiData';
+import config from './lib/config/config';
 
-// const isPositionOpen = false;
+const TG_CHATS = config.tg.chatIds;
 
 async function prepareMessagesToSend() {
     const [positionsResp, btcPriceResp, pepePriceResp] = await Promise.all([
         getPositionData(),
-        getPriceData(BTC_USDT_FUTURES_ID),
-        getPriceData(PEPE_USDT_FUTURES_ID),
+        getPriceData('BTC-USDT-SWAP'),
+        getPriceData('PEPE-USDT-SWAP'),
     ]);
 
-    // if (!positionsResp) {
-    //     if (isPositionOpen) {
-    //     }
-    //     positionMsg = false;
-    // }
     const positionMsg = parsePositionData(positionsResp);
     const btcMsg = parsePriceData(btcPriceResp);
     const pepeMsg = parsePriceData(pepePriceResp);
@@ -29,9 +24,9 @@ async function sendMessagesAndWait() {
         const { positionMsg, btcMsg, pepeMsg } = await prepareMessagesToSend();
         await Promise.all(
             [
-                positionMsg && sendMsgToChat(CHAT_IDS.PNL, positionMsg),
-                btcMsg && sendMsgToChat(CHAT_IDS.BTC, btcMsg),
-                pepeMsg && sendMsgToChat(CHAT_IDS.PEPE, pepeMsg),
+                positionMsg && sendMsgToChat(TG_CHATS.pnl, positionMsg),
+                btcMsg && sendMsgToChat(TG_CHATS.btc, btcMsg),
+                pepeMsg && sendMsgToChat(TG_CHATS.pepe, pepeMsg),
             ].filter(Boolean),
         );
         setTimeout(sendMessagesAndWait, 60000);

@@ -1,16 +1,8 @@
-import { RestClient } from 'okx-api';
-import { APIKEY, PASS, SECRETKEY } from '../../lib/constants.js';
+import client from './client';
 
-const client = new RestClient({
-    apiKey: APIKEY,
-    apiSecret: SECRETKEY,
-    apiPass: PASS,
-});
-
-export async function getPositionData(isPositionOpen) {
+export async function getPositionData() {
     try {
         const res = await client.getPositions();
-        if (!Array.isArray(res) || !res.length) return false;
         console.log('✅ getPositionData');
         return res;
     } catch (error) {
@@ -22,20 +14,18 @@ export async function getPositionData(isPositionOpen) {
 export async function getPriceData(instId) {
     try {
         const res = await client.getTicker({ instId });
-        if (!Array.isArray(res) || !res.length)
-            throw new Error(`Помилка отриманні ціни: ${instId}`);
         console.log(`✅ getPriceData ${instId}`);
-        return res[0];
+        return res;
     } catch (error) {
         error.message = `❌ getPriceData ${instId} failed: ${error.message}`;
         throw error;
     }
 }
 
-export async function getPositionsHistory() {
+export async function getPositionsHistory(params) {
     try {
         console.log(`✅ getPositionsHistory`);
-        return await client.getPositionsHistory({ limit: 1 });
+        return await client.getPositionsHistory(params);
     } catch (error) {
         error.message = `❌ getPositionsHistory failed: ${error.message}`;
         throw error;
