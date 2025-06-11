@@ -3,12 +3,12 @@ import { postNotion } from '@/api/notion';
 import { parseDataToNotionDB } from '@/services/notion/parseDataToNotionDB';
 import { parsePositionHistory } from '@/services/okx/parseApiData';
 
-// import moment from 'moment';
-// const before = moment('30.05.2025 00:00', 'DD.MM.YYYY HH:mm').valueOf();
-const posData = await getPositionsHistory({ limit: 1 });
-const parsedData = parsePositionHistory(posData);
+const LIMIT = Number(process.argv[2]);
 
 try {
+    if (isNaN(LIMIT)) throw new Error('Position limit invalid');
+    const posData = await getPositionsHistory({ limit: LIMIT });
+    const parsedData = parsePositionHistory(posData);
     console.log(`Кількість позицій: ${parsedData.length}`);
     for (let i = 0; i < parsedData.length; i++) {
         await postNotion(parseDataToNotionDB(parsedData[i]));
